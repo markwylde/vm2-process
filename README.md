@@ -39,11 +39,11 @@ console.log(result) // prints '3'
 ### Simple usage with some limits
 ```javascript
 import run from 'vm2-process';
-const result = await run('1 + a', null {
+const result = await run('while (true) {}', null {
   cpu: 100, /* in percent */
   memory: 2000, /* in megabytes */
   time: 1000 /* in milliseconds */
 });
 
-console.log(result) // prints '3'
+// above throws as it either takes too long or exceeds the memory limit
 ```
