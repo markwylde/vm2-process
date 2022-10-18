@@ -76,6 +76,7 @@ test('with memory overspill', async t => {
 
 test('with cpu limit', async t => {
   t.plan(2);
+  t.timeout(5000);
 
   const code = `
     1 + 1;
@@ -93,6 +94,7 @@ test('with cpu limit', async t => {
 
 test('falsey scope is overridden', async t => {
   t.plan(2);
+  t.timeout(5000);
 
   const code = `
     1 + 1;
