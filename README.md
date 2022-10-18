@@ -22,28 +22,41 @@ The following limits are the default, but they can be overridden.
 
 ### Simple usage with only code
 ```javascript
-import run from 'vm2-process';
+import createVm2Pool from 'vm2-process';
+
+const { run, drain } = createVm2Pool({ min: 1, max: 3 });
 const result = await run('1 + 1');
 
 console.log(result) // prints '2'
+
+drain();
 ```
 
 ### Simple usage with some scope
 ```javascript
-import run from 'vm2-process';
+import createVm2Pool from 'vm2-process';
+
+const { run, drain } = createVm2Pool({ min: 1, max: 3 });
 const result = await run('1 + a', { a: 2 })
 
 console.log(result) // prints '3'
+
+drain();
 ```
 
 ### Simple usage with some limits
 ```javascript
-import run from 'vm2-process';
-const result = await run('while (true) {}', null {
+import createVm2Pool from 'vm2-process';
+
+const { run, drain } = createVm2Pool({
+  min: 1, /* min threads in the pool */
+  max: 3, /* max threads in the pool */
   cpu: 100, /* in percent */
   memory: 2000, /* in megabytes */
   time: 1000 /* in milliseconds */
 });
+const result = await run('while (true) {}', null);
 
 // above throws as it either takes too long or exceeds the memory limit
+drain();
 ```
