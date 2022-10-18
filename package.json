@@ -19,6 +19,8 @@
   },
   "license": "MIT",
   "dependencies": {
+    "final-stream": "^2.0.4",
+    "generic-pool": "^3.9.0",
     "vm2": "^3.9.11"
   },
   "devDependencies": {

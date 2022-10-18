@@ -1,6 +1,6 @@
 import test from 'basictap';
 import findProcessByPartialName from './utils/findProcessByPartialName.js';
-import run from '../lib/index.js';
+import createVm2Pool from '../lib/index.js';
 
 test('single expression', async t => {
   const code = `
@@ -9,9 +9,12 @@ test('single expression', async t => {
     add(1, 2);
   `;
 
+  const { run, drain } = createVm2Pool({ min: 1, max: 3 });
   const result = await run(code);
 
   t.equal(result, 3);
+
+  drain();
 });
 
 test('syntax error code', async t => {
@@ -21,9 +24,13 @@ test('syntax error code', async t => {
     const add;
   `;
 
-  run(code).catch(error => {
+  const { run, drain } = createVm2Pool({ min: 1, max: 3 });
+
+  await run(code).catch(error => {
     t.ok(error.message.includes('Missing initializer in const declaration'));
   });
+
+  drain();
 });
 
 test('falsey scope is overridden', async t => {
@@ -33,20 +40,25 @@ test('falsey scope is overridden', async t => {
     add(1, 2);
   `;
 
+  const { run, drain } = createVm2Pool({ min: 1, max: 3 });
   const result = await run(code, null);
 
   t.equal(result, 3);
+
+  drain();
 });
 
 test('with scope', async t => {
   const code = 'a + b';
 
+  const { run, drain } = createVm2Pool({ min: 1, max: 3 });
   const result = await run(code, {
     a: 1,
     b: 2
   });
 
   t.equal(result, 3);
+  drain();
 });
 
 test('with sync blocking script', async t => {
@@ -56,14 +68,18 @@ test('with sync blocking script', async t => {
     while (true) {}
   `;
 
-  await run(code, {}, { time: 100 })
+  const { run, drain } = createVm2Pool({ min: 1, max: 3, time: 100 });
+
+  await run(code, {})
     .catch(error => {
       t.equal(error.message, 'code execution took too long and was killed');
     });
 
   const processCount = await findProcessByPartialName('vm2-process-runner');
 
-  t.equal(processCount, 0);
+  t.equal(processCount, 2 /* max - 1 */);
+
+  drain();
 });
 
 test('with memory overspill', async t => {
@@ -76,38 +92,66 @@ test('with memory overspill', async t => {
     }
   `;
 
-  await run(code, {}, { time: 5000, memory: 1 })
+  const { run, drain } = createVm2Pool({ min: 1, max: 3, time: 5000, memory: 10 });
+
+  await run(code, {})
     .catch(error => {
       t.equal(error.message, 'code execution exceeed allowed memory');
     });
 
   const processCount = await findProcessByPartialName('vm2-process-runner');
 
-  t.equal(processCount, 0);
+  t.equal(processCount, 2 /* max - 1 */);
+
+  drain();
 });
 
 test('with cpu limit', async t => {
-  t.plan(4);
-  t.timeout(5000);
+  t.plan(2);
 
   const code = `
-    1 + 1;
+    for (let x = 0; x < 50000000; x++) {
+
+    }
   `;
 
-  const goodStartTime = Date.now();
-  await run(code, {}, { time: 5000, memory: 1 })
-    .catch(error => {
-      t.equal(error.message, 'code execution exceeed allowed memory');
-    });
-  const goodDuration = Date.now() - goodStartTime;
+  const { run, drain } = createVm2Pool({ min: 1, max: 3, time: 500, cpu: 1 });
 
-  const startTime = Date.now();
-  const result = await run(code, {}, { time: 4000, cpu: 1 });
-  const duration = Date.now() - startTime;
-  t.equal(result, 2);
-  t.ok(duration > goodDuration, `take longer ${duration} than normal test ${goodDuration}`);
+  await run(code)
+    .catch(error => {
+      t.equal(error.message, 'code execution took too long and was killed');
+    });
 
   const processCount = await findProcessByPartialName('vm2-process-runner');
 
-  t.equal(processCount, 0);
+  t.equal(processCount, 2 /* max - 1 */);
+
+  drain();
+});
+
+test('stress test', async t => {
+  const code = `
+    const add = (a, b) => a + b;
+
+    add(1, 2);
+  `;
+
+  const { run, drain } = createVm2Pool({ min: 5, max: 10 });
+
+  const promises = [];
+
+  const startTime = Date.now();
+  for (let i = 0; i < 100; i++) {
+    promises.push(
+      run(code)
+    );
+  }
+  const results = await Promise.all(promises);
+  const duration = Date.now() - startTime;
+  const average = duration / 100;
+
+  t.ok(average < 50, `average (${average}ms) is less than 50 ms on average`);
+  t.ok(results.every(item => item === 3), [], 'all results were correct');
+
+  drain();
 });
