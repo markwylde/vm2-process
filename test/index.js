@@ -26,6 +26,18 @@ test('syntax error code', async t => {
   });
 });
 
+test('falsey scope is overridden', async t => {
+  const code = `
+    const add = (a, b) => a + b;
+
+    add(1, 2);
+  `;
+
+  const result = await run(code, null);
+
+  t.equal(result, 3);
+});
+
 test('with scope', async t => {
   const code = 'a + b';
 
@@ -75,35 +87,25 @@ test('with memory overspill', async t => {
 });
 
 test('with cpu limit', async t => {
-  t.plan(2);
+  t.plan(4);
   t.timeout(5000);
 
   const code = `
     1 + 1;
   `;
 
-  await run(code, {}, { time: 5000, cpu: 1 })
+  const goodStartTime = Date.now();
+  await run(code, {}, { time: 5000, memory: 1 })
     .catch(error => {
-      t.equal(error.message, 'code execution took too long and was killed');
+      t.equal(error.message, 'code execution exceeed allowed memory');
     });
+  const goodDuration = Date.now() - goodStartTime;
 
-  const processCount = await findProcessByPartialName('vm2-process-runner');
-
-  t.equal(processCount, 0);
-});
-
-test('falsey scope is overridden', async t => {
-  t.plan(2);
-  t.timeout(5000);
-
-  const code = `
-    1 + 1;
-  `;
-
-  await run(code, null, { time: 5000, cpu: 1 })
-    .catch(error => {
-      t.equal(error.message, 'code execution took too long and was killed');
-    });
+  const startTime = Date.now();
+  const result = await run(code, {}, { time: 4000, cpu: 1 });
+  const duration = Date.now() - startTime;
+  t.equal(result, 2);
+  t.ok(duration > goodDuration, `take longer ${duration} than normal test ${goodDuration}`);
 
   const processCount = await findProcessByPartialName('vm2-process-runner');
 
