@@ -64,7 +64,7 @@ test('with memory overspill', async t => {
     }
   `;
 
-  await run(code, {}, { memory: 1 })
+  await run(code, {}, { time: 5000, memory: 1 })
     .catch(error => {
       t.equal(error.message, 'code execution exceeed allowed memory');
     });
