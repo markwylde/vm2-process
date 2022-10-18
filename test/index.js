@@ -2,6 +2,8 @@ import test from 'basictap';
 import findProcessByPartialName from './utils/findProcessByPartialName.js';
 import createVm2Pool from '../lib/index.js';
 
+const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+
 test('single expression', async t => {
   const code = `
     const add = (a, b) => a + b;
@@ -10,8 +12,30 @@ test('single expression', async t => {
   `;
 
   const { run, drain } = createVm2Pool({ min: 1, max: 3 });
+
   const result = await run(code);
 
+  t.equal(result, 3);
+
+  drain();
+});
+
+test('full pool is fast', async t => {
+  const code = `
+    const add = (a, b) => a + b;
+
+    add(1, 2);
+  `;
+
+  const { run, drain } = createVm2Pool({ min: 1, max: 3 });
+
+  await sleep(1000); /* should be long enough to fill pool */
+
+  const startTime = Date.now();
+  const result = await run(code);
+  const duration = Date.now() - startTime;
+
+  t.ok(duration < 50, `should take less than 50ms (actual: ${duration}ms)`);
   t.equal(result, 3);
 
   drain();
@@ -107,20 +131,24 @@ test('with memory overspill', async t => {
 });
 
 test('with cpu limit', async t => {
-  t.plan(2);
+  t.plan(3);
 
   const code = `
-    for (let x = 0; x < 50000000; x++) {
-
-    }
+    let result = 0;
+    for (var i = Math.pow(6, 7); i >= 0; i--) {
+      result += Math.atan(i) * Math.tan(i);
+    };
   `;
 
   const { run, drain } = createVm2Pool({ min: 1, max: 3, time: 500, cpu: 1 });
 
-  await run(code)
+  const result = await run(code)
     .catch(error => {
       t.equal(error.message, 'code execution took too long and was killed');
+      return null;
     });
+
+  t.equal(result, null);
 
   const processCount = await findProcessByPartialName('vm2-process-runner');
 
