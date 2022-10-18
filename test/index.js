@@ -81,7 +81,7 @@ test('with cpu limit', async t => {
     1 + 1;
   `;
 
-  await run(code, {}, { cpu: 1 })
+  await run(code, {}, { time: 5000, cpu: 1 })
     .catch(error => {
       t.equal(error.message, 'code execution took too long and was killed');
     });
@@ -98,7 +98,7 @@ test('falsey scope is overridden', async t => {
     1 + 1;
   `;
 
-  await run(code, null, { cpu: 1 })
+  await run(code, null, { time: 5000, cpu: 1 })
     .catch(error => {
       t.equal(error.message, 'code execution took too long and was killed');
     });
