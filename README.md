@@ -12,9 +12,11 @@ npm install --save vm2-process
 
 ## Default limits
 The following limits are the default, but they can be overridden.
-| CPU            | 100 percent       |
-| Memory         | 2000 megabytes    |
-| Execution Time | 1000 milliseconds |
+<table>
+<tr><td>CPU</td><td>100 percent</td></tr>
+<tr><td>Memory</td><td>2000 megabytes</td></tr>
+<tr><td>Execution Time</td><td>1000 milliseconds</td></tr>
+</table>
 
 ## Usage
 
