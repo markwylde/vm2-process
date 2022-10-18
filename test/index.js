@@ -129,7 +129,7 @@ test('with cpu limit', async t => {
   drain();
 });
 
-test('stress test', async t => {
+test.skip('stress test', async t => {
   const code = `
     const add = (a, b) => a + b;
 
