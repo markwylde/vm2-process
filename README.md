@@ -1,5 +1,5 @@
 # vm2-process
-Run untrusted code via [https://github.com/patriksimek/vm2](vm2), but inside a separate process which has additional restrictions:
+Run untrusted code via [vm2](https://github.com/patriksimek/vm2), but inside a separate process which has additional restrictions:
 1. Limit how much of a CPU can be used
 2. Limit how much memory can be used
 3. Limit how much time it can take (even if blocked by sync code)
