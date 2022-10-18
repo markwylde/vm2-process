@@ -23,7 +23,7 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
 
-    - run: apt-get update && apt-get -y install cpulimit
+    - run: sudo apt-get update && sudo apt-get -y install cpulimit
 
     - run: npm install
     - run: c8 node test
