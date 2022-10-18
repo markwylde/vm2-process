@@ -1,6 +1,6 @@
 {
   "name": "vm2-process",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "type": "module",
   "description": "Execute unsafe javascript code in a sandbox",
   "main": "lib/index.js",
