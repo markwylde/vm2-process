@@ -10,13 +10,24 @@ Run untrusted code via [vm2](https://github.com/patriksimek/vm2), but inside a s
 npm install --save vm2-process
 ```
 
-## Default limits
-The following limits are the default, but they can be overridden.
-<table>
-<tr><td>CPU</td><td>100 percent</td></tr>
-<tr><td>Memory</td><td>2000 megabytes</td></tr>
-<tr><td>Execution Time</td><td>1000 milliseconds</td></tr>
-</table>
+## API
+The `createVm2Pool` (default export) accepts the following options:
+
+| Title          | Key    | Default           |
+|----------------|--------|-------------------|
+| Min Threads    | min    | -                 |
+| Max Threads    | max    | -                 |
+| CPU            | cpu    | 100 percent       |
+| Memory         | memory | 2000 megabytes    |
+| Execution Time | time   | 1000 milliseconds |
+
+It will return a `run` function that takes two arguments: `run(code, scope)`
+
+`code` is a string of JavaScript code.
+`scope` is an object, of which will be globally accessible during execution.
+
+Note: Communication is done via a unix socket, and therefore the scope,
+and result from the execution needs to be JSON serializable.
 
 ## Usage
 
