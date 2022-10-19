@@ -99,7 +99,7 @@ test('with sync blocking script', async t => {
       t.equal(error.message, 'code execution took too long and was killed');
     });
 
-  const processCount = await findProcessByPartialName('vm2-process-runner');
+  const processCount = await findProcessByPartialName('vm2ProcessRunner');
 
   t.equal(processCount, 2 /* max - 1 */);
 
@@ -123,7 +123,7 @@ test('with memory overspill', async t => {
       t.equal(error.message, 'code execution exceeed allowed memory');
     });
 
-  const processCount = await findProcessByPartialName('vm2-process-runner');
+  const processCount = await findProcessByPartialName('vm2ProcessRunner');
 
   t.equal(processCount, 2 /* max - 1 */);
 
@@ -150,7 +150,7 @@ test('with cpu limit', async t => {
 
   t.equal(result, null);
 
-  const processCount = await findProcessByPartialName('vm2-process-runner');
+  const processCount = await findProcessByPartialName('vm2ProcessRunner');
 
   t.equal(processCount, 2 /* max - 1 */);
 
