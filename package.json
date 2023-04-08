@@ -21,10 +21,10 @@
   "dependencies": {
     "final-stream": "^2.0.4",
     "generic-pool": "^3.9.0",
-    "vm2": "^3.9.11"
+    "vm2": "^3.9.15"
   },
   "devDependencies": {
-    "basictap": "^3.4.3",
-    "c8": "^7.12.0"
+    "basictap": "^4.3.1",
+    "c8": "^7.13.0"
   }
 }
