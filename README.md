@@ -1,4 +1,8 @@
 # vm2-process
+
+> vm2 has been deprecated and deemed not safe for production use
+> [read more here](https://github.com/patriksimek/vm2?tab=readme-ov-file#%EF%B8%8F-project-discontinued-%EF%B8%8F)
+
 Run untrusted code via [vm2](https://github.com/patriksimek/vm2), but inside a separate process which has additional restrictions:
 1. Limit how much of a CPU can be used
 2. Limit how much memory can be used
